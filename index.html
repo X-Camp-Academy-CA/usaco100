@@ -39,19 +39,22 @@
     var params = new URLSearchParams(location.search);
     var p = (params.get('p') || params.get('utm_source') || '').toLowerCase().trim();
     var partner = PARTNERS.indexOf(p) >= 0 ? p : (p ? 'other-' + p.replace(/[^a-z0-9-]/g, '').slice(0, 30) : 'unknown');
+    // GA source names that follow the shared X-Camp UTM source list.
+    var UTM_NAME = { 'wwppc': 'wwpit', 'codesprint': 'codesprint-la', 'tj-ioi': 'tjioi' };
+    var source = UTM_NAME[partner] || partner;
 
     var isTest = params.get('test') === '1';
     var campaign = isTest ? 'usaco100-test' : 'usaco100';
 
     // Attribute this visit to the partner via standard UTM tags on page_location.
     var tagged = location.origin + location.pathname +
-      '?utm_source=' + encodeURIComponent(partner) +
+      '?utm_source=' + encodeURIComponent(source) +
       '&utm_medium=poster&utm_campaign=' + campaign;
 
     var status = document.getElementById('status');
     if (isTest) {
       status.style.display = 'block';
-      status.textContent = 'TEST MODE | partner: ' + partner +
+      status.textContent = 'TEST MODE | partner: ' + partner + ' -> utm_source: ' + source +
         (PARTNERS.indexOf(partner) >= 0 ? ' (recognized)' : ' (NOT recognized)') + ' | GA: sending...';
     }
 
@@ -67,11 +70,11 @@
       }
     }
 
-    gtag('event', 'poster_scan', { partner: partner, campaign: campaign, transport_type: 'beacon' });
+    gtag('event', 'poster_scan', { partner: source, campaign: campaign, transport_type: 'beacon' });
     gtag('event', 'page_view', {
       page_location: tagged,
       page_title: isTest ? 'USACO100 poster scan (test)' : 'USACO100 poster scan',
-      partner: partner,
+      partner: source,
       transport_type: 'beacon',
       event_callback: go
     });
