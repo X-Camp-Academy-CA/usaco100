@@ -19,11 +19,13 @@
   var isTest = params.get('test') === '1';
   var campaign = isTest ? 'usaco100-test' : 'usaco100';
 
-  // Every hit (including the automatic session_start) carries the UTM tags,
-  // so GA credits the session to the partner from the very first hit.
-  var tagged = location.origin + location.pathname +
-    '?utm_source=' + encodeURIComponent(source) +
-    '&utm_medium=poster&utm_campaign=' + campaign;
+  // Rewrite this page's own address to include the UTM tags BEFORE gtag.js runs,
+  // so every hit (including the first one that starts the session) carries them.
+  history.replaceState(null, '', location.pathname +
+    '?p=' + encodeURIComponent(p) + (isTest ? '&test=1' : '') +
+    '&utm_source=' + encodeURIComponent(source) +
+    '&utm_medium=poster&utm_campaign=' + campaign);
+  var tagged = location.href;
 
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -75,8 +77,8 @@
     }
 
     // page_view first (carries the UTM tags), then the scan event.
-    gtag('event', 'page_view', { partner: source, transport_type: 'beacon', event_callback: go });
-    gtag('event', 'poster_scan', { partner: source, campaign: campaign, transport_type: 'beacon' });
+    gtag('event', 'page_view', { page_location: tagged, partner: source, transport_type: 'beacon', event_callback: go });
+    gtag('event', 'poster_scan', { page_location: tagged, partner: source, campaign: campaign, transport_type: 'beacon' });
 
     // Fallback in case GA is blocked or slow.
     setTimeout(function () {
