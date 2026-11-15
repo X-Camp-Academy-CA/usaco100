@@ -7,10 +7,32 @@
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-L64HE50P6M"></script>
 <script>
+  var FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSdl1XUOs_OP53-BJEwSKNh5E_dbD-A3mZsSDHLYCEMWJ3rfjA/viewform';
+  var PARTNERS = ['calico','hpi','wwppc','teamscode','taco','aca','codesprint','bapc','sacc','tj-ioi','cpi','lit','sunbeam','macso','sfmo'];
+  // GA source names that follow the shared X-Camp UTM source list.
+  var UTM_NAME = { 'wwppc': 'wwpit', 'codesprint': 'codesprint-la', 'tj-ioi': 'tjioi' };
+
+  var params = new URLSearchParams(location.search);
+  var p = (params.get('p') || params.get('utm_source') || '').toLowerCase().trim();
+  var partner = PARTNERS.indexOf(p) >= 0 ? p : (p ? 'other-' + p.replace(/[^a-z0-9-]/g, '').slice(0, 30) : 'unknown');
+  var source = UTM_NAME[partner] || partner;
+  var isTest = params.get('test') === '1';
+  var campaign = isTest ? 'usaco100-test' : 'usaco100';
+
+  // Every hit (including the automatic session_start) carries the UTM tags,
+  // so GA credits the session to the partner from the very first hit.
+  var tagged = location.origin + location.pathname +
+    '?utm_source=' + encodeURIComponent(source) +
+    '&utm_medium=poster&utm_campaign=' + campaign;
+
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-L64HE50P6M', { send_page_view: false });
+  gtag('config', 'G-L64HE50P6M', {
+    send_page_view: false,
+    page_location: tagged,
+    page_title: isTest ? 'USACO100 poster scan (test)' : 'USACO100 poster scan'
+  });
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,24 +55,6 @@
   </div>
 <script>
   (function () {
-    var FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSdl1XUOs_OP53-BJEwSKNh5E_dbD-A3mZsSDHLYCEMWJ3rfjA/viewform';
-    var PARTNERS = ['calico','hpi','wwppc','teamscode','taco','aca','codesprint','bapc','sacc','tj-ioi','cpi','lit','sunbeam','macso','sfmo'];
-
-    var params = new URLSearchParams(location.search);
-    var p = (params.get('p') || params.get('utm_source') || '').toLowerCase().trim();
-    var partner = PARTNERS.indexOf(p) >= 0 ? p : (p ? 'other-' + p.replace(/[^a-z0-9-]/g, '').slice(0, 30) : 'unknown');
-    // GA source names that follow the shared X-Camp UTM source list.
-    var UTM_NAME = { 'wwppc': 'wwpit', 'codesprint': 'codesprint-la', 'tj-ioi': 'tjioi' };
-    var source = UTM_NAME[partner] || partner;
-
-    var isTest = params.get('test') === '1';
-    var campaign = isTest ? 'usaco100-test' : 'usaco100';
-
-    // Attribute this visit to the partner via standard UTM tags on page_location.
-    var tagged = location.origin + location.pathname +
-      '?utm_source=' + encodeURIComponent(source) +
-      '&utm_medium=poster&utm_campaign=' + campaign;
-
     var status = document.getElementById('status');
     if (isTest) {
       status.style.display = 'block';
@@ -70,14 +74,9 @@
       }
     }
 
+    // page_view first (carries the UTM tags), then the scan event.
+    gtag('event', 'page_view', { partner: source, transport_type: 'beacon', event_callback: go });
     gtag('event', 'poster_scan', { partner: source, campaign: campaign, transport_type: 'beacon' });
-    gtag('event', 'page_view', {
-      page_location: tagged,
-      page_title: isTest ? 'USACO100 poster scan (test)' : 'USACO100 poster scan',
-      partner: source,
-      transport_type: 'beacon',
-      event_callback: go
-    });
 
     // Fallback in case GA is blocked or slow.
     setTimeout(function () {
