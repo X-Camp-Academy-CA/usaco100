@@ -26,6 +26,7 @@
     <h1>USACO 100-Problem Challenge</h1>
     <p>Taking you to the registration form…</p>
     <a id="go" href="https://docs.google.com/forms/d/e/1FAIpQLSdl1XUOs_OP53-BJEwSKNh5E_dbD-A3mZsSDHLYCEMWJ3rfjA/viewform">Continue to registration</a>
+    <p id="status" style="display:none;margin-top:20px;font-family:monospace;color:#1A2B6B"></p>
   </div>
 <script>
   (function () {
@@ -36,25 +37,47 @@
     var p = (params.get('p') || params.get('utm_source') || '').toLowerCase().trim();
     var partner = PARTNERS.indexOf(p) >= 0 ? p : (p ? 'other-' + p.replace(/[^a-z0-9-]/g, '').slice(0, 30) : 'unknown');
 
+    var isTest = params.get('test') === '1';
+    var campaign = isTest ? 'usaco100-test' : 'usaco100';
+
     // Attribute this visit to the partner via standard UTM tags on page_location.
     var tagged = location.origin + location.pathname +
       '?utm_source=' + encodeURIComponent(partner) +
-      '&utm_medium=poster&utm_campaign=usaco100';
+      '&utm_medium=poster&utm_campaign=' + campaign;
+
+    var status = document.getElementById('status');
+    if (isTest) {
+      status.style.display = 'block';
+      status.textContent = 'TEST MODE | partner: ' + partner +
+        (PARTNERS.indexOf(partner) >= 0 ? ' (recognized)' : ' (NOT recognized)') + ' | GA: sending...';
+    }
 
     var done = false;
-    function go() { if (!done) { done = true; location.replace(FORM); } }
+    function go() {
+      if (done) return;
+      done = true;
+      if (isTest) {
+        status.textContent = status.textContent.replace('GA: sending...', 'GA: sent');
+        setTimeout(function () { location.replace(FORM); }, 3000);
+      } else {
+        location.replace(FORM);
+      }
+    }
 
-    gtag('event', 'poster_scan', { partner: partner, transport_type: 'beacon' });
+    gtag('event', 'poster_scan', { partner: partner, campaign: campaign, transport_type: 'beacon' });
     gtag('event', 'page_view', {
       page_location: tagged,
-      page_title: 'USACO100 poster scan',
+      page_title: isTest ? 'USACO100 poster scan (test)' : 'USACO100 poster scan',
       partner: partner,
       transport_type: 'beacon',
       event_callback: go
     });
 
     // Fallback in case GA is blocked or slow.
-    setTimeout(go, 1500);
+    setTimeout(function () {
+      if (!done && isTest) status.textContent = status.textContent.replace('GA: sending...', 'GA: TIMEOUT');
+      go();
+    }, 1500);
   })();
 </script>
 </body>
