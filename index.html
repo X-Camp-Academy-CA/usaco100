@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="preconnect" href="https://www.googletagmanager.com">
+<link rel="preconnect" href="https://www.google-analytics.com">
+<link rel="preconnect" href="https://region1.google-analytics.com">
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-L64HE50P6M"></script>
 <script>
@@ -77,7 +80,7 @@
     setTimeout(function () {
       if (!done && isTest) status.textContent = status.textContent.replace('GA: sending...', 'GA: TIMEOUT');
       go();
-    }, 1500);
+    }, 4000);
   })();
 </script>
 </body>
