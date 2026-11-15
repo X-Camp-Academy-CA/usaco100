@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-L64HE50P6M"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-L64HE50P6M', { send_page_view: false });
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>X-Camp USACO 100-Problem Challenge</title>
+<style>
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #FFF4E0; color: #1A2B6B;
+         display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; text-align: center; padding: 24px; }
+  h1 { font-size: 1.4rem; margin: 0 0 8px; }
+  p { color: #666; margin: 0 0 20px; }
+  a { display: inline-block; background: #F5A623; color: #fff; padding: 12px 24px; border-radius: 999px; text-decoration: none; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div>
+    <h1>USACO 100-Problem Challenge</h1>
+    <p>Taking you to the registration form…</p>
+    <a id="go" href="https://docs.google.com/forms/d/e/1FAIpQLSdl1XUOs_OP53-BJEwSKNh5E_dbD-A3mZsSDHLYCEMWJ3rfjA/viewform">Continue to registration</a>
+  </div>
+<script>
+  (function () {
+    var FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSdl1XUOs_OP53-BJEwSKNh5E_dbD-A3mZsSDHLYCEMWJ3rfjA/viewform';
+    var PARTNERS = ['calico','hpi','wwppc','teamscode','taco','aca','codesprint','bapc','sacc','tj-ioi','cpi','lit','sunbeam','macso','sfmo'];
+
+    var params = new URLSearchParams(location.search);
+    var p = (params.get('p') || params.get('utm_source') || '').toLowerCase().trim();
+    var partner = PARTNERS.indexOf(p) >= 0 ? p : (p ? 'other-' + p.replace(/[^a-z0-9-]/g, '').slice(0, 30) : 'unknown');
+
+    // Attribute this visit to the partner via standard UTM tags on page_location.
+    var tagged = location.origin + location.pathname +
+      '?utm_source=' + encodeURIComponent(partner) +
+      '&utm_medium=poster&utm_campaign=usaco100';
+
+    var done = false;
+    function go() { if (!done) { done = true; location.replace(FORM); } }
+
+    gtag('event', 'poster_scan', { partner: partner, transport_type: 'beacon' });
+    gtag('event', 'page_view', {
+      page_location: tagged,
+      page_title: 'USACO100 poster scan',
+      partner: partner,
+      transport_type: 'beacon',
+      event_callback: go
+    });
+
+    // Fallback in case GA is blocked or slow.
+    setTimeout(go, 1500);
+  })();
+</script>
+</body>
+</html>
